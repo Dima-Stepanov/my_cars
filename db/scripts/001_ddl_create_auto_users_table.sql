@@ -1,5 +1,5 @@
 --Создание таблицы с пользователями
-create table auto_user
+create table auto_users
 (
     id       serial primary key,
     login    varchar not null unique,
