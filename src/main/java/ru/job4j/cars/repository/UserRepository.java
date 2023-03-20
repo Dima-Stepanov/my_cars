@@ -24,6 +24,13 @@ public interface UserRepository {
     User create(User user);
 
     /**
+     * Найти пользователя по ID
+     *
+     * @return пользователь.
+     */
+    Optional<User> findById(int userId);
+
+    /**
      * Обновить в базе пользователя.
      *
      * @param user пользователь.
@@ -38,18 +45,19 @@ public interface UserRepository {
     void delete(int userId);
 
     /**
+     * Найти пользователя по login.
+     *
+     * @param login login.
+     * @return Optional or user.
+     */
+    Optional<User> findByLogin(String login);
+
+    /**
      * Список пользователь отсортированных по id.
      *
      * @return список пользователей.
      */
     Collection<User> findAllOrderById();
-
-    /**
-     * Найти пользователя по ID
-     *
-     * @return пользователь.
-     */
-    Optional<User> findById(int userId);
 
     /**
      * Список пользователей по login LIKE %key%
@@ -58,12 +66,4 @@ public interface UserRepository {
      * @return список пользователей.
      */
     Collection<User> findByLikeLogin(String key);
-
-    /**
-     * Найти пользователя по login.
-     *
-     * @param login login.
-     * @return Optional or user.
-     */
-    Optional<User> findByLogin(String login);
 }
