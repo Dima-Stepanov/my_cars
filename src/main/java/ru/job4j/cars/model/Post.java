@@ -4,6 +4,8 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,14 +30,26 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @EqualsAndHashCode.Include
     private int id;
+    @Column(nullable = false)
     private String description;
-    private LocalDateTime created;
+    @Column(nullable = false)
+    private LocalDateTime created = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
+    @ToString.Exclude
     @ManyToOne
-    @JoinColumn(name = "auto_user_id")
-    @ToString.Exclude
+    @JoinColumn(nullable = false, name = "auto_user_id")
     private User user;
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "post_id")
+
     @ToString.Exclude
-    private List<PriceHistory> priceHistory;
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(nullable = false, name = "post_id")
+    private List<PriceHistory> priceHistory = new ArrayList<>();
+
+    @ToString.Exclude
+    @ManyToMany
+    @JoinTable(
+            name = "participates",
+            joinColumns = {@JoinColumn(nullable = false, name = "post_id")},
+            inverseJoinColumns = {@JoinColumn(nullable = false, name = "user_id")}
+    )
+    private List<User> participates = new ArrayList<>();
 }
