@@ -42,6 +42,7 @@ public class Post {
     @ToString.Exclude
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(nullable = false, name = "post_id")
+    @Singular("addPriceHistory")
     private List<PriceHistory> priceHistory = new ArrayList<>();
 
     @ToString.Exclude
@@ -51,5 +52,11 @@ public class Post {
             joinColumns = {@JoinColumn(nullable = false, name = "post_id")},
             inverseJoinColumns = {@JoinColumn(nullable = false, name = "user_id")}
     )
+    @Singular("addParticipate")
     private List<User> participates = new ArrayList<>();
+
+    @ToString.Exclude
+    @ManyToOne
+    @JoinColumn(nullable = false, name = "car_id")
+    private Car car;
 }

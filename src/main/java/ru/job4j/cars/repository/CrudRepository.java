@@ -1,6 +1,7 @@
 package ru.job4j.cars.repository;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -32,6 +33,7 @@ import java.util.function.Function;
  */
 @Component
 @AllArgsConstructor
+@Slf4j
 public class CrudRepository {
     private final SessionFactory sessionFactory;
 
@@ -52,9 +54,11 @@ public class CrudRepository {
             sessionQuery.executeUpdate();
         };
         run(command);
+
     }
 
-    public <T> Optional<T> optional(String query, Class<T> cl, Map<String, Object> args) {
+    public <T> Optional<T> optional(String query, Class<T> cl,
+                                    Map<String, Object> args) {
         Function<Session, Optional<T>> command = session -> {
             var sessionQuery = session
                     .createQuery(query, cl);
@@ -101,6 +105,7 @@ public class CrudRepository {
             transaction.commit();
             return rsl;
         } catch (Exception e) {
+            log.error("Error method **tx** {}", e.getMessage());
             if (transaction != null) {
                 transaction.rollback();
             }
