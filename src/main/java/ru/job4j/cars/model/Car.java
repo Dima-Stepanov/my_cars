@@ -30,7 +30,15 @@ public class Car {
     private int id;
     private String name;
     @ManyToOne
-    @JoinColumn(nullable = false, name = "engine_id")
+    @JoinColumn(nullable = false,
+            name = "model_id",
+            foreignKey = @ForeignKey(name = "MODEL_ID_FK"))
+    @ToString.Exclude
+    private CarModel carModel;
+    @ManyToOne
+    @JoinColumn(nullable = false,
+            name = "engine_id",
+            foreignKey = @ForeignKey(name = "ENGINE_ID_FK"))
     @ToString.Exclude
     private Engine engine;
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
