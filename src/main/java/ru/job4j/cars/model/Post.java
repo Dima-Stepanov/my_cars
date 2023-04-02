@@ -34,6 +34,7 @@ public class Post {
     private String description;
     @Column(nullable = false)
     private LocalDateTime created = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
+    private LocalDateTime done;
     @ToString.Exclude
     @ManyToOne
     @JoinColumn(nullable = false, name = "auto_user_id")
@@ -57,6 +58,6 @@ public class Post {
 
     @ToString.Exclude
     @ManyToOne
-    @JoinColumn(nullable = false, name = "car_id")
+    @JoinColumn(nullable = false, name = "car_id", foreignKey = @ForeignKey(name = "CAR_ID_FK"))
     private Car car;
 }
