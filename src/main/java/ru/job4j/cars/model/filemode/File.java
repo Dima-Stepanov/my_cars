@@ -32,9 +32,4 @@ public class File {
     private String name;
     @Column(nullable = false, unique = true)
     private String path;
-    @ManyToOne
-    @JoinColumn(nullable = false, name = "post_id",
-            foreignKey = @ForeignKey(name = "POST_ID_FK"))
-    @ToString.Exclude
-    private Post post;
 }

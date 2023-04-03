@@ -110,12 +110,10 @@ public class SimpleFileService implements FileService {
     }
 
     @Override
-    public File save(FileDTO fileDTO, int postId) {
+    public File save(FileDTO fileDTO) {
         var path = getNewFilePath(fileDTO.getName());
         writeFileBytes(path, fileDTO.getContent());
-        var post = new Post();
-        post.setId(postId);
-        var file = new File(0, fileDTO.getName(), path, post);
+        var file = new File(0, fileDTO.getName(), path);
         return fileRepository.save(file);
     }
 
@@ -138,16 +136,5 @@ public class SimpleFileService implements FileService {
         deleteFile(fileOptional.get().getPath());
         fileRepository.deleteFileById(fileId);
         return true;
-    }
-
-    @Override
-    public List<FileDTO> getAllFileByPostId(int postId) {
-        var filesByPost = fileRepository.findAllFileByPostOrderById(postId);
-        var filesDTObyPost = new ArrayList<FileDTO>();
-        for (File file : filesByPost) {
-            var content = readFileAsBytes(file.getPath());
-            filesDTObyPost.add(new FileDTO(file.getName(), content));
-        }
-        return filesDTObyPost;
     }
 }

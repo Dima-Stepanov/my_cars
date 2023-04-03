@@ -1,6 +1,7 @@
 package ru.job4j.cars.model;
 
 import lombok.*;
+import ru.job4j.cars.model.filemode.File;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -36,18 +37,18 @@ public class Post {
     private LocalDateTime created = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
     private LocalDateTime done;
     @ToString.Exclude
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false, name = "auto_user_id")
     private User user;
 
     @ToString.Exclude
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(nullable = false, name = "post_id")
     @Singular("addPriceHistory")
     private List<PriceHistory> priceHistory = new ArrayList<>();
 
     @ToString.Exclude
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "participates",
             joinColumns = {@JoinColumn(nullable = false, name = "post_id")},
@@ -57,7 +58,11 @@ public class Post {
     private List<User> participates = new ArrayList<>();
 
     @ToString.Exclude
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false, name = "car_id", foreignKey = @ForeignKey(name = "CAR_ID_FK"))
     private Car car;
+    @ToString.Exclude
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false, name = "post_id", foreignKey = @ForeignKey(name = "POST_ID_FK"))
+    private List<File> files = new ArrayList<>();
 }

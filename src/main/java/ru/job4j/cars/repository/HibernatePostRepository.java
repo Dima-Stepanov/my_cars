@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
+import java.util.StringJoiner;
 
 /**
  * 3. Мидл
@@ -26,6 +27,20 @@ import java.util.Optional;
 public class HibernatePostRepository implements PostRepository {
     private final CrudRepository crudRepository;
 
+    private final String hqlQuery = new StringBuilder()
+            .append("FROM Post AS p ")
+            .append("LEFT JOIN FETCH p.user AS u ")
+            .append("LEFT JOIN FETCH p.priceHistory AS ph ")
+            .append("LEFT JOIN FETCH p.participates AS pa ")
+            .append("LEFT JOIN FETCH p.car AS c ")
+            .append("LEFT JOIN FETCH c.carModel AS m ")
+            .append("LEFT JOIN FETCH m.carBoard AS b ")
+            .append("LEFT JOIN FETCH c.engine AS e ")
+            .append("LEFT JOIN FETCH c.owners AS o ")
+            .append("LEFT JOIN FETCH o.user AS uo ")
+            .append("LEFT JOIN FETCH p.files AS f ")
+            .toString();
+
     @Override
     public Post save(Post post) {
         crudRepository.run(session -> session.persist(post));
@@ -34,8 +49,9 @@ public class HibernatePostRepository implements PostRepository {
 
     @Override
     public Optional<Post> findPostById(int postId) {
+        var query = hqlQuery + "WHERE p.id =:postId;";
         return crudRepository.optional(
-                "FROM Post AS p WHERE p.id =:postId",
+                query,
                 Post.class,
                 Map.of("postId", postId)
         );
@@ -74,9 +90,8 @@ public class HibernatePostRepository implements PostRepository {
     public Collection<Post> findAllPostWithPhotos() {
         return crudRepository.query(
                 """
-                        FROM Post AS p 
-                        File AS f 
-                        WHERE p = f.post
+                           FROM Post AS p 
+                           JOIN FETCH p.files AS f 
                         """,
                 Post.class
         );

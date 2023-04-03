@@ -38,12 +38,4 @@ public interface FileRepository {
      * @param fileId File ID
      */
     void deleteFileById(int fileId);
-
-    /**
-     * Поиск всех файлов принадлежащих одному посту.
-     *
-     * @param postId Post ID
-     * @return List<Files>
-     */
-    List<File> findAllFileByPostOrderById(int postId);
 }

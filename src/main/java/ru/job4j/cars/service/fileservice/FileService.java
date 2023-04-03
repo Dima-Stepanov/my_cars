@@ -16,11 +16,9 @@ import java.util.Optional;
  * @since 01.04.2023
  */
 public interface FileService {
-    File save(FileDTO fileDTO, int postId);
+    File save(FileDTO fileDTO);
 
     Optional<FileDTO> getFileById(int fileId);
 
     boolean deleteById(int fileId);
-
-    List<FileDTO> getAllFileByPostId(int postId);
 }

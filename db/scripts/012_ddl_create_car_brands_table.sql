@@ -2,5 +2,5 @@
 create table car_brands
 (
     id serial primary key,
-    name not null varchar unique
+    name varchar not null unique
 );

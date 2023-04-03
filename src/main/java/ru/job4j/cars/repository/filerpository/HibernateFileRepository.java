@@ -61,23 +61,4 @@ public class HibernateFileRepository implements FileRepository {
                 Map.of("fileId", fileId)
         );
     }
-
-    /**
-     * Поиск всех файлов принадлежащих одному посту.
-     *
-     * @param postId Post ID
-     * @return List<Files>
-     */
-    @Override
-    public List<File> findAllFileByPostOrderById(int postId) {
-        return crudRepository.query(
-                """
-                        FROM File AS f 
-                        JOIN FETCH f.post AS p 
-                        WHERE p.id =:postId
-                        """,
-                File.class,
-                Map.of("postId", postId)
-        );
-    }
 }

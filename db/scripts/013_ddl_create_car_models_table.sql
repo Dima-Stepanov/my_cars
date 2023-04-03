@@ -2,6 +2,6 @@
 create table car_models
 (
     id serial primary key,
-    name not null varchar,
-    brand_id not null references car_brands(id)
+    name varchar not null,
+    brand_id int not null references car_brands(id)
 );
