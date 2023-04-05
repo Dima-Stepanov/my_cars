@@ -1,9 +1,8 @@
 package ru.job4j.cars.service.fileservice;
 
-import ru.job4j.cars.model.filemode.File;
-import ru.job4j.cars.model.filemode.FileDTO;
+import ru.job4j.cars.model.filemodel.File;
+import ru.job4j.cars.model.filemodel.FileDTO;
 
-import java.util.List;
 import java.util.Optional;
 
 /**

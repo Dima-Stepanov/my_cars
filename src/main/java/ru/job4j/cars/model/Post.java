@@ -1,7 +1,7 @@
 package ru.job4j.cars.model;
 
 import lombok.*;
-import ru.job4j.cars.model.filemode.File;
+import ru.job4j.cars.model.filemodel.File;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -64,5 +64,6 @@ public class Post {
     @ToString.Exclude
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(nullable = false, name = "post_id", foreignKey = @ForeignKey(name = "POST_ID_FK"))
+    @Singular("addPriceHistory")
     private List<File> files = new ArrayList<>();
 }

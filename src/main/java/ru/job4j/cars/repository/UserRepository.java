@@ -50,7 +50,7 @@ public interface UserRepository {
      * @param login login.
      * @return Optional or user.
      */
-    Optional<User> findByLogin(String login);
+    Optional<User> findByLoginAndPassword(String login, String password);
 
     /**
      * Список пользователь отсортированных по id.
