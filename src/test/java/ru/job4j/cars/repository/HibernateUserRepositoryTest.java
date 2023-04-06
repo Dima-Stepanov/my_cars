@@ -2,21 +2,21 @@ package ru.job4j.cars.repository;
 
 import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.*;
-import ru.job4j.cars.configuration.HibernateConfiguration;
 import ru.job4j.cars.model.User;
 
 import javax.persistence.PersistenceException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * 3. Мидл
  * 3.3. Hibernate
  * 3.3.0. Проект "АвтоМаг"
+ * HibernateUserRepository TEST
  *
  * @author Dmitry Stepanov, user Dmitry
  * @since 05.04.2023
@@ -34,7 +34,7 @@ class HibernateUserRepositoryTest {
 
     @BeforeAll
     public static void initRepository() {
-        sf = new HibernateConfiguration().getSessionFactory();
+        sf = HibernateConfigurationTest.getSessionFactory();
         var crud = new CrudRepository(sf);
         userRepository = new HibernateUserRepository(crud);
     }
@@ -58,7 +58,7 @@ class HibernateUserRepositoryTest {
         var userInDb = userRepository.findById(user.getId());
 
         assertThat(user.getId()).isGreaterThan(0);
-        assertThat(user).usingRecursiveComparison().isEqualTo(userInDb.get());
+        assertThat(userInDb).usingRecursiveComparison().isEqualTo(Optional.of(user));
     }
 
     @Test
@@ -75,7 +75,7 @@ class HibernateUserRepositoryTest {
         var user = new User(0, "login", "password");
         userRepository.create(user);
         var userInDb = userRepository.findById(user.getId());
-        assertThat(userInDb.get()).usingRecursiveComparison().isEqualTo(user);
+        assertThat(userInDb).usingRecursiveComparison().isEqualTo(Optional.of(user));
     }
 
     @Test
@@ -95,7 +95,7 @@ class HibernateUserRepositoryTest {
         userRepository.update(user);
         var userInDb = userRepository.findById(user.getId());
 
-        assertThat(userInDb.get()).usingRecursiveComparison().isEqualTo(user);
+        assertThat(userInDb).usingRecursiveComparison().isEqualTo(Optional.of(user));
     }
 
     @Test
@@ -127,7 +127,7 @@ class HibernateUserRepositoryTest {
 
         var userInDb = userRepository.findByLoginAndPassword(user.getLogin(), user.getPassword());
 
-        assertThat(userInDb.get()).usingRecursiveComparison().isEqualTo(user);
+        assertThat(userInDb).usingRecursiveComparison().isEqualTo(Optional.of(user));
     }
 
     @Test

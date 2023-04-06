@@ -50,7 +50,7 @@ public class HibernateEngineRepository implements EngineRepository {
     public void delete(int engineId) {
         crudRepository.run(
                 """
-                        DELTE FROM Engine AS e 
+                        DELETE FROM Engine AS e 
                         WHERE e.id =:engineId
                         """,
                 Map.of("engineId", engineId)

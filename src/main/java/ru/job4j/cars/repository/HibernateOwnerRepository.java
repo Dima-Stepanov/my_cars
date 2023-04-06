@@ -34,7 +34,7 @@ public class HibernateOwnerRepository implements OwnerRepository {
         return crudRepository.optional(
                 """
                         FROM Owner AS o 
-                        JOIN FETCH User AS u 
+                        JOIN FETCH o.user AS u 
                         WHERE o.id =:ownerId
                         """,
                 Owner.class,
@@ -63,7 +63,7 @@ public class HibernateOwnerRepository implements OwnerRepository {
         return crudRepository.query(
                 """
                         FROM Owner AS o 
-                        JOIN FETCH User AS u 
+                        JOIN FETCH o.user AS u 
                         ORDER BY o.id ASC
                         """,
                 Owner.class
