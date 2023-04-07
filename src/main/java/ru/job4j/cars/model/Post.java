@@ -48,7 +48,7 @@ public class Post {
     private List<PriceHistory> priceHistory = new ArrayList<>();
 
     @ToString.Exclude
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinTable(
             name = "participates",
             joinColumns = {@JoinColumn(nullable = false, name = "post_id")},

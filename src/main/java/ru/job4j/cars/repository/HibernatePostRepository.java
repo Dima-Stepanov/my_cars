@@ -25,11 +25,12 @@ import java.util.Optional;
 public class HibernatePostRepository implements PostRepository {
     private final CrudRepository crudRepository;
 
-    private final String hqlQuery = new StringBuilder()
+    private final String hqlPost = new StringBuilder()
             .append("FROM Post AS po ")
-            .append("LEFT JOIN FETCH po.user AS us ")
+            .append("JOIN FETCH po.user AS us ")
             .append("LEFT JOIN FETCH po.priceHistory AS ph ")
             .append("LEFT JOIN FETCH po.participates AS pa ")
+            .append("LEFT JOIN FETCH pa.user AS pus")
             .append("LEFT JOIN FETCH po.car AS ca ")
             .append("LEFT JOIN FETCH ca.carModel AS cm ")
             .append("LEFT JOIN FETCH cm.carBoard AS cb ")
@@ -37,6 +38,21 @@ public class HibernatePostRepository implements PostRepository {
             .append("LEFT JOIN FETCH ca.owners AS ow ")
             .append("LEFT JOIN FETCH ow.user AS uw ")
             .append("LEFT JOIN FETCH po.files AS fi ")
+            .toString();
+
+    private final String hqlPostFiles = new StringBuilder()
+            .append("FROM Post AS po ")
+            .append("JOIN FETCH po.user AS us ")
+            .append("LEFT JOIN FETCH po.priceHistory AS ph ")
+            .append("LEFT JOIN FETCH po.participates AS pa ")
+            .append("LEFT JOIN FETCH pa.user AS pus")
+            .append("LEFT JOIN FETCH po.car AS ca ")
+            .append("LEFT JOIN FETCH ca.carModel AS cm ")
+            .append("LEFT JOIN FETCH cm.carBoard AS cb ")
+            .append("LEFT JOIN FETCH ca.engine AS en ")
+            .append("LEFT JOIN FETCH ca.owners AS ow ")
+            .append("LEFT JOIN FETCH ow.user AS uw ")
+            .append("JOIN FETCH po.files AS fi ")
             .toString();
 
     @Override
@@ -47,9 +63,8 @@ public class HibernatePostRepository implements PostRepository {
 
     @Override
     public Optional<Post> findPostById(int postId) {
-        var query = hqlQuery + "WHERE p.id =:postId;";
         return crudRepository.optional(
-                query,
+                hqlPost + "WHERE po.id =:postId",
                 Post.class,
                 Map.of("postId", postId)
         );
@@ -63,7 +78,7 @@ public class HibernatePostRepository implements PostRepository {
     @Override
     public void delete(int postId) {
         crudRepository.run(
-                "DELETE FROM Post AS p WHERE p.id =:postId",
+                "DELETE FROM Post AS po WHERE po.id =:postId",
                 Map.of("postId", postId)
         );
     }
@@ -71,7 +86,7 @@ public class HibernatePostRepository implements PostRepository {
     @Override
     public Collection<Post> findAllPost() {
         return crudRepository.query(
-                "FROM Post AS p",
+                "SELECT DISTINCT po " + hqlPost,
                 Post.class
         );
     }
@@ -79,7 +94,9 @@ public class HibernatePostRepository implements PostRepository {
     @Override
     public Collection<Post> findAllPostLastDayOrderByCreated() {
         return crudRepository.query(
-                "FROM Post AS p WHERE p.created >= CURRENT_DATE()",
+                "SELECT DISTINCT po "
+                + hqlPost
+                + "WHERE po.created >= CURRENT_DATE()",
                 Post.class
         );
     }
@@ -87,10 +104,7 @@ public class HibernatePostRepository implements PostRepository {
     @Override
     public Collection<Post> findAllPostWithPhotos() {
         return crudRepository.query(
-                """
-                           FROM Post AS p 
-                           JOIN FETCH p.files AS f 
-                        """,
+                "SELECT DISTINCT po " + hqlPostFiles,
                 Post.class
         );
     }
@@ -98,12 +112,9 @@ public class HibernatePostRepository implements PostRepository {
     @Override
     public Collection<Post> findAllPostByBrand(int brandId) {
         return crudRepository.query(
-                """
-                        FROM Post AS p 
-                        JOIN FETCH p.model AS m 
-                        JOIN FETCH m.brand AS b 
-                        WHERE b.id =:brandId
-                        """,
+                "SELECT DISTINCT po "
+                + hqlPost
+                + "WHERE cb.id =:brandId",
                 Post.class,
                 Map.of("brandId", brandId)
         );

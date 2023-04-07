@@ -21,8 +21,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
  */
 class HibernateCarRepositoryTest {
     private static SessionFactory sessionFactory;
-    private static HibernateCarRepository carRepository;
     private static CrudRepository crud;
+    private static HibernateCarRepository carRepository;
     private CarBrand carBrand;
     private CarModel carModel;
     private Engine engine;
@@ -55,14 +55,18 @@ class HibernateCarRepositoryTest {
     public void initEntity() {
         carBrand = new CarBrand(0, "CarBrand");
         crud.run(session -> session.persist(carBrand));
+
         carModel = new CarModel(0, "CarModel", carBrand);
         crud.run(session -> session.persist(carModel));
+
         engine = new Engine(0, "Engine");
         crud.run(session -> session.persist(engine));
+
         user1 = new User(0, "User1Login", "User1Pass");
         user2 = new User(0, "User2Login", "User2Pass");
         crud.run(session -> session.persist(user1));
         crud.run(session -> session.persist(user2));
+
         owner1 = new Owner(0, "Owner1", user1);
         owner2 = new Owner(0, "Owner2", user2);
         crud.run(session -> session.persist(owner1));
