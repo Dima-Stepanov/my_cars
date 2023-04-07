@@ -80,11 +80,12 @@ public class HibernateUserRepository implements UserRepository {
      * @return Optional or user.
      */
     @Override
-    public Optional<User> findByLogin(String login) {
+    public Optional<User> findByLoginAndPassword(String login, String password) {
         return crudRepository.optional(
-                "from User as u where u.login =:login",
+                "from User as u where u.login =:login and u.password =:password",
                 User.class,
-                Map.of("login", login)
+                Map.of("login", login,
+                        "password", password)
         );
     }
 
@@ -110,7 +111,7 @@ public class HibernateUserRepository implements UserRepository {
     @Override
     public Collection<User> findByLikeLogin(String key) {
         return crudRepository.query(
-                "from User as where u.login like :key",
+                "from User as u where u.login LIKE :key",
                 User.class,
                 Map.of("key", "%" + key + "%")
         );

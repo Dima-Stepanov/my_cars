@@ -22,6 +22,12 @@ import java.util.Optional;
 @AllArgsConstructor
 public class HibernateCarRepository implements CarRepository {
     private final CrudRepository crudRepository;
+    private final String hql = new StringBuilder()
+            .append("FROM Car AS ca ")
+            .append("JOIN FETCH ca.carModel AS cm ")
+            .append("JOIN FETCH ca.engine AS en ")
+            .append("LEFT JOIN FETCH ca.owners AS ow ")
+            .append("LEFT JOIN FETCH ow.user AS us ").toString();
 
     @Override
     public Car create(Car car) {
@@ -32,13 +38,7 @@ public class HibernateCarRepository implements CarRepository {
     @Override
     public Optional<Car> findCarById(int carId) {
         return crudRepository.optional(
-                """
-                        FROM Car AS c 
-                        JOIN FETCH c.engine AS e 
-                        JOIN FETCH c.owners AS o 
-                        JOIN FETCH o.user AS u  
-                        WHERE c.id =:carId 
-                        """,
+                hql + "WHERE ca.id =:carId",
                 Car.class,
                 Map.of("carId", carId)
         );
@@ -53,8 +53,8 @@ public class HibernateCarRepository implements CarRepository {
     public void delete(int carId) {
         crudRepository.run(
                 """
-                        DELETE FROM Car AS c 
-                        WHERE c.id =:carId
+                        DELETE FROM Car AS ca 
+                        WHERE ca.id =:carId
                         """,
                 Map.of("carId", carId)
         );
@@ -63,13 +63,7 @@ public class HibernateCarRepository implements CarRepository {
     @Override
     public List<Car> findAllCar() {
         return crudRepository.query(
-                """
-                        FROM Car AS c 
-                        JOIN FETCH c.engine AS e 
-                        JOIN FETCH c.owners AS o
-                        JOIN FETCH o.user AS u 
-                        ORDER BY c.id ASC
-                        """,
+                "SELECT DISTINCT ca " + hql + "ORDER BY ca.id ASC",
                 Car.class
         );
     }

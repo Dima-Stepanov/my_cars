@@ -1,7 +1,7 @@
 package ru.job4j.cars.model;
 
 import lombok.*;
-import ru.job4j.cars.model.filemode.File;
+import ru.job4j.cars.model.filemodel.File;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -48,7 +48,7 @@ public class Post {
     private List<PriceHistory> priceHistory = new ArrayList<>();
 
     @ToString.Exclude
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinTable(
             name = "participates",
             joinColumns = {@JoinColumn(nullable = false, name = "post_id")},
@@ -64,5 +64,6 @@ public class Post {
     @ToString.Exclude
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(nullable = false, name = "post_id", foreignKey = @ForeignKey(name = "POST_ID_FK"))
+    @Singular("addPriceHistory")
     private List<File> files = new ArrayList<>();
 }

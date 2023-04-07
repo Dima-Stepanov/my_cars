@@ -3,16 +3,13 @@ package ru.job4j.cars.service.fileservice;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import ru.job4j.cars.model.Post;
-import ru.job4j.cars.model.filemode.File;
-import ru.job4j.cars.model.filemode.FileDTO;
+import ru.job4j.cars.model.filemodel.File;
+import ru.job4j.cars.model.filemodel.FileDTO;
 import ru.job4j.cars.repository.filerpository.FileRepository;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 

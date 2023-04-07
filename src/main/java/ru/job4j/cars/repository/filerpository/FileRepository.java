@@ -1,8 +1,7 @@
 package ru.job4j.cars.repository.filerpository;
 
-import ru.job4j.cars.model.filemode.File;
+import ru.job4j.cars.model.filemodel.File;
 
-import java.util.List;
 import java.util.Optional;
 
 /**

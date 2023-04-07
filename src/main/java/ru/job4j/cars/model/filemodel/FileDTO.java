@@ -1,4 +1,4 @@
-package ru.job4j.cars.model.filemode;
+package ru.job4j.cars.model.filemodel;
 
 import lombok.*;
 

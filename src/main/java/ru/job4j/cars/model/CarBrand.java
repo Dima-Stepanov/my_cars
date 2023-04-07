@@ -27,5 +27,5 @@ public class CarBrand {
     @EqualsAndHashCode.Include
     private int id;
     @Column(nullable = false, unique = true)
-    private int name;
+    private String name;
 }
