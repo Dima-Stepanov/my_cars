@@ -3,5 +3,5 @@ create table cars
 (
   id serial primary key,
   name varchar,
-  engine_id int references engines(id)
+  engine_id int not null references engines(id)
 );

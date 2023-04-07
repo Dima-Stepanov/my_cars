@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.annotations.QueryHints;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -73,6 +74,7 @@ public class CrudRepository {
     public <T> List<T> query(String query, Class<T> cl) {
         Function<Session, List<T>> command = session -> session
                 .createQuery(query, cl)
+                .setHint(QueryHints.PASS_DISTINCT_THROUGH, false)
                 .list();
         return tx(command);
     }
@@ -84,7 +86,9 @@ public class CrudRepository {
             for (Map.Entry<String, Object> arg : args.entrySet()) {
                 sessionQuery.setParameter(arg.getKey(), arg.getValue());
             }
-            return sessionQuery.list();
+            return sessionQuery
+                    .setHint(QueryHints.PASS_DISTINCT_THROUGH, false)
+                    .list();
         };
         return tx(command);
     }

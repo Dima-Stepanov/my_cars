@@ -5,11 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import ru.job4j.cars.model.Post;
 
-import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
-import java.util.StringJoiner;
 
 /**
  * 3. Мидл
@@ -28,17 +26,17 @@ public class HibernatePostRepository implements PostRepository {
     private final CrudRepository crudRepository;
 
     private final String hqlQuery = new StringBuilder()
-            .append("FROM Post AS p ")
-            .append("LEFT JOIN FETCH p.user AS u ")
-            .append("LEFT JOIN FETCH p.priceHistory AS ph ")
-            .append("LEFT JOIN FETCH p.participates AS pa ")
-            .append("LEFT JOIN FETCH p.car AS c ")
-            .append("LEFT JOIN FETCH c.carModel AS m ")
-            .append("LEFT JOIN FETCH m.carBoard AS b ")
-            .append("LEFT JOIN FETCH c.engine AS e ")
-            .append("LEFT JOIN FETCH c.owners AS o ")
-            .append("LEFT JOIN FETCH o.user AS uo ")
-            .append("LEFT JOIN FETCH p.files AS f ")
+            .append("FROM Post AS po ")
+            .append("LEFT JOIN FETCH po.user AS us ")
+            .append("LEFT JOIN FETCH po.priceHistory AS ph ")
+            .append("LEFT JOIN FETCH po.participates AS pa ")
+            .append("LEFT JOIN FETCH po.car AS ca ")
+            .append("LEFT JOIN FETCH ca.carModel AS cm ")
+            .append("LEFT JOIN FETCH cm.carBoard AS cb ")
+            .append("LEFT JOIN FETCH ca.engine AS en ")
+            .append("LEFT JOIN FETCH ca.owners AS ow ")
+            .append("LEFT JOIN FETCH ow.user AS uw ")
+            .append("LEFT JOIN FETCH po.files AS fi ")
             .toString();
 
     @Override

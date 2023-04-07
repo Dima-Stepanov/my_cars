@@ -27,7 +27,7 @@ public class CarModel {
     @EqualsAndHashCode.Include
     private int id;
     @Column(nullable = false)
-    private int name;
+    private String name;
     @ManyToOne
     @JoinColumn(nullable = false,
             name = "brand_id",

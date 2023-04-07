@@ -41,14 +41,13 @@ public class Car {
             foreignKey = @ForeignKey(name = "ENGINE_ID_FK"))
     @ToString.Exclude
     private Engine engine;
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ToString.Exclude
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinTable(name = "history_owner",
             joinColumns = {
                     @JoinColumn(name = "car_id", nullable = false, updatable = false)},
             inverseJoinColumns = {
                     @JoinColumn(name = "owner_id", nullable = false, updatable = false)}
     )
-    @ToString.Exclude
-    @Singular("addOwner")
     private Set<Owner> owners = new HashSet<>();
 }
