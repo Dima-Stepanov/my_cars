@@ -15,7 +15,7 @@ import java.util.Optional;
  * @since 02.04.2023
  */
 public interface PostRepository {
-    Post save(Post post);
+    Post create(Post post);
 
     Optional<Post> findPostById(int postId);
 

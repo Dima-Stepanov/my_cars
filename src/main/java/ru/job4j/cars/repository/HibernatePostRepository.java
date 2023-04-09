@@ -30,33 +30,31 @@ public class HibernatePostRepository implements PostRepository {
             .append("JOIN FETCH po.user AS us ")
             .append("LEFT JOIN FETCH po.priceHistory AS ph ")
             .append("LEFT JOIN FETCH po.participates AS pa ")
-            .append("LEFT JOIN FETCH pa.user AS pus")
-            .append("LEFT JOIN FETCH po.car AS ca ")
-            .append("LEFT JOIN FETCH ca.carModel AS cm ")
-            .append("LEFT JOIN FETCH cm.carBoard AS cb ")
-            .append("LEFT JOIN FETCH ca.engine AS en ")
+            .append("JOIN FETCH po.car AS ca ")
+            .append("JOIN FETCH ca.carModel AS cm ")
+            .append("JOIN FETCH cm.carBrand AS cb ")
+            .append("JOIN FETCH ca.engine AS en ")
             .append("LEFT JOIN FETCH ca.owners AS ow ")
-            .append("LEFT JOIN FETCH ow.user AS uw ")
+            .append("LEFT JOIN FETCH ow.user AS owu ")
             .append("LEFT JOIN FETCH po.files AS fi ")
             .toString();
 
-    private final String hqlPostFiles = new StringBuilder()
+    private final String hqlPostNotFiles = new StringBuilder()
             .append("FROM Post AS po ")
             .append("JOIN FETCH po.user AS us ")
             .append("LEFT JOIN FETCH po.priceHistory AS ph ")
             .append("LEFT JOIN FETCH po.participates AS pa ")
-            .append("LEFT JOIN FETCH pa.user AS pus")
-            .append("LEFT JOIN FETCH po.car AS ca ")
-            .append("LEFT JOIN FETCH ca.carModel AS cm ")
-            .append("LEFT JOIN FETCH cm.carBoard AS cb ")
-            .append("LEFT JOIN FETCH ca.engine AS en ")
+            .append("JOIN FETCH po.car AS ca ")
+            .append("JOIN FETCH ca.carModel AS cm ")
+            .append("JOIN FETCH cm.carBrand AS cb ")
+            .append("JOIN FETCH ca.engine AS en ")
             .append("LEFT JOIN FETCH ca.owners AS ow ")
-            .append("LEFT JOIN FETCH ow.user AS uw ")
+            .append("LEFT JOIN FETCH ow.user AS owu ")
             .append("JOIN FETCH po.files AS fi ")
             .toString();
 
     @Override
-    public Post save(Post post) {
+    public Post create(Post post) {
         crudRepository.run(session -> session.persist(post));
         return post;
     }
@@ -104,7 +102,7 @@ public class HibernatePostRepository implements PostRepository {
     @Override
     public Collection<Post> findAllPostWithPhotos() {
         return crudRepository.query(
-                "SELECT DISTINCT po " + hqlPostFiles,
+                "SELECT DISTINCT po " + hqlPostNotFiles,
                 Post.class
         );
     }

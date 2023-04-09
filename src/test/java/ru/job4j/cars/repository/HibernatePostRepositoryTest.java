@@ -1,15 +1,20 @@
 package ru.job4j.cars.repository;
 
+import org.hibernate.PropertyValueException;
 import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.*;
 import ru.job4j.cars.model.*;
 import ru.job4j.cars.model.filemodel.*;
 
+import javax.persistence.PersistenceException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 /**
  * 3. Мидл
@@ -21,8 +26,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
  * @since 07.04.2023
  */
 class HibernatePostRepositoryTest {
-    private static SessionFactory sessionFactory;
-    private static CrudRepository crudPost;
+    private static SessionFactory sf;
+    private static CrudRepository crud;
     private static HibernatePostRepository postRepository;
     private CarBrand carBrand;
     private CarModel carModel;
@@ -31,6 +36,7 @@ class HibernatePostRepositoryTest {
     private User user2;
     private Owner owner1;
     private Owner owner2;
+    private Car car;
     private PriceHistory priceHistory1;
     private PriceHistory priceHistory2;
     private File file1;
@@ -38,37 +44,70 @@ class HibernatePostRepositoryTest {
 
     @BeforeAll
     public static void initCarRepository() {
-        sessionFactory = HibernateConfigurationTest.getSessionFactory();
-        crudPost = new CrudRepository(sessionFactory);
-        postRepository = new HibernatePostRepository(crudPost);
+        sf = HibernateConfigurationTest.getSessionFactory();
+        crud = new CrudRepository(sf);
+        postRepository = new HibernatePostRepository(crud);
     }
 
     @AfterAll
     public static void closeResource() {
-        if (!sessionFactory.isClosed()) {
-            sessionFactory.close();
+        if (!sf.isClosed()) {
+            sf.close();
         }
     }
 
     private void deleteEntity() {
-    //    crud.run("delete from Post as p where p.id >:pId",
-     //           Map.of("pIf", 0));
-        crudPost.run("delete from Car as c where c.id >:cId",
-                Map.of("cId", 0));
-        crudPost.run("delete from Owner as o where o.id >:oId",
-                Map.of("oId", 0));
-        crudPost.run("delete from User as u where u.id >:uId",
-                Map.of("uId", 0));
-        crudPost.run("delete from Engine as e where e.id >:eId",
-                Map.of("eId", 0));
-        crudPost.run("delete from CarModel as cm where cm.id >: cmId",
-                Map.of("cmId", 0));
-        crudPost.run("delete from CarBrand as cb where cb.id >:cbId",
-                Map.of("cbId", 0));
-        crudPost.run("delete from PriceHistory as ph where ph.id >:phId",
+        crud.run("DELETE FROM PriceHistory AS ph WHERE ph.id >:phId",
                 Map.of("phId", 0));
-        crudPost.run("delete from Files AS f where f.id >:fId",
-                Map.of("fId", 0));
+        crud.run("DELETE FROM File AS fi WHERE fi.id >:fileId",
+                Map.of("fileId", 0));
+        crud.run("DELETE FROM Post AS po WHERE po.id >:postId",
+                Map.of("postId", 0));
+        crud.run("DELETE FROM Car AS ca WHERE ca.id >:carId",
+                Map.of("carId", 0));
+        crud.run("DELETE FROM Owner AS ow WHERE ow.id >:ownerId",
+                Map.of("ownerId", 0));
+        crud.run("DELETE FROM User AS us WHERE us.id >:userId",
+                Map.of("userId", 0));
+        crud.run("DELETE FROM Engine AS en WHERE en.id >:engineId",
+                Map.of("engineId", 0));
+        crud.run("DELETE FROM CarModel AS cm WHERE cm.id >:cmId",
+                Map.of("cmId", 0));
+        crud.run("DELETE FROM CarBrand AS cb WHERE cb.id >:cbId",
+                Map.of("cbId", 0));
+    }
+
+    @BeforeEach
+    public void initEntity() {
+        carBrand = new CarBrand(0, "CarBrandPost");
+        crud.run(session -> session.persist(carBrand));
+
+        carModel = new CarModel(0, "CarModelPost", carBrand);
+        crud.run(session -> session.persist(carModel));
+
+        engine = new Engine(0, "EnginePost");
+        crud.run(session -> session.persist(engine));
+
+        user1 = new User(0, "User1LoginPost", "User1Pass");
+        user2 = new User(0, "User2LoginPost", "User2Pass");
+        crud.run(session -> session.persist(user1));
+        crud.run(session -> session.persist(user2));
+
+        owner1 = new Owner(0, "Owner1Post", user1);
+        owner2 = new Owner(0, "Owner2Post", user2);
+        crud.run(session -> session.persist(owner1));
+        crud.run(session -> session.persist(owner2));
+
+        car = new Car(0, "carName", carModel, engine, Set.of(owner1, owner2));
+        crud.run(session -> session.persist(car));
+
+        priceHistory1 = new PriceHistory(0, 200000, 150000,
+                LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).minusDays(10));
+        priceHistory2 = new PriceHistory(0, 150000, 123456,
+                LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
+
+        file1 = new File(0, "file1", "..//files/file1.jpg");
+        file2 = new File(0, "file2", "..//files/file2.jpg");
     }
 
     @AfterEach
@@ -76,50 +115,129 @@ class HibernatePostRepositoryTest {
         deleteEntity();
     }
 
-    @BeforeEach
-    public void initEntity() {
-        carBrand = new CarBrand(0, "CarBrandPost");
-        crudPost.run(session -> session.persist(carBrand));
+    @Test
+    void whenCreatePostAndFindByIdThenReturnNewPostAndIdGreaterZero() {
+        var post = Post.of()
+                .description("postDescription")
+                .created(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))
+                .user(user1)
+                .priceHistoryAdd(priceHistory1).priceHistoryAdd(priceHistory2)
+                .participatesAdd(user1).participatesAdd(user2)
+                .car(car)
+                .filesAdd(file1).filesAdd(file2)
+                .build();
+        postRepository.create(post);
+        var postInDb = postRepository.findPostById(post.getId());
 
-        carModel = new CarModel(0, "CarModelPost", carBrand);
-        crudPost.run(session -> session.persist(carModel));
-
-        engine = new Engine(0, "EnginePost");
-        crudPost.run(session -> session.persist(engine));
-
-        user1 = new User(0, "User1LoginPost", "User1Pass");
-        user2 = new User(0, "User2LoginPost", "User2Pass");
-        crudPost.run(session -> session.persist(user1));
-        crudPost.run(session -> session.persist(user2));
-
-        owner1 = new Owner(0, "Owner1Post", user1);
-        owner2 = new Owner(0, "Owner2Post", user2);
-        crudPost.run(session -> session.persist(owner1));
-        crudPost.run(session -> session.persist(owner2));
-
-        priceHistory1 = new PriceHistory(0, 0, 150000,
-                LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).minusDays(10));
-        priceHistory2 = new PriceHistory(0, 150000, 123456,
-                LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
-        crudPost.run(session -> session.persist(priceHistory1));
-        crudPost.run(session -> session.persist(priceHistory2));
-
-        file1 = new File(0, "file1", "..//files/file1.jpg");
-        file2 = new File(0, "file2", "..//files/file2.jpg");
-        crudPost.run(session -> session.persist(file1));
-        crudPost.run(session -> session.persist(file2));
+        assertThat(post.getId()).isGreaterThan(0);
+        assertThat(postInDb).usingRecursiveComparison().isEqualTo(Optional.of(post));
     }
 
     @Test
-    void save() {
+    public void whenCreatedPostByUserNullThenReturnPersistenceExceptionAndPropertyValueExceptionAndMessageNotNull() {
+        var post = Post.of()
+                .description("postDescription")
+                .created(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))
+                .priceHistoryAdd(priceHistory1).priceHistoryAdd(priceHistory2)
+                .participatesAdd(user1).participatesAdd(user2)
+                .car(car)
+                .filesAdd(file1).filesAdd(file2)
+                .build();
+        assertThatThrownBy(() -> postRepository.create(post))
+                .isInstanceOf(PersistenceException.class)
+                .hasCauseInstanceOf(PropertyValueException.class)
+                .hasMessageContaining("not-null");
     }
 
     @Test
-    void findPostById() {
+    public void whenCreatePostByCarNullThenReturnPersistenceExceptionAndPropertyValueExceptionAndMessageNotNull() {
+        var post = Post.of()
+                .description("postDescription")
+                .user(user1)
+                .created(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))
+                .priceHistoryAdd(priceHistory1).priceHistoryAdd(priceHistory2)
+                .participatesAdd(user1).participatesAdd(user2)
+                .filesAdd(file1).filesAdd(file2)
+                .build();
+        assertThatThrownBy(() -> postRepository.create(post))
+                .isInstanceOf(PersistenceException.class)
+                .hasCauseInstanceOf(PropertyValueException.class)
+                .hasMessageContaining("not-null");
     }
 
     @Test
-    void update() {
+    public void whenCreatePostByPriceHistoryNullThenReturnNewPostAndIdGreaterZero() {
+        var post = Post.of()
+                .description("postDescription")
+                .created(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))
+                .user(user1)
+                .participatesAdd(user1).participatesAdd(user2)
+                .car(car)
+                .filesAdd(file1).filesAdd(file2)
+                .build();
+        postRepository.create(post);
+        var postInDb = postRepository.findPostById(post.getId());
+
+        assertThat(post.getId()).isGreaterThan(0);
+        assertThat(postInDb).usingRecursiveComparison().isEqualTo(Optional.of(post));
+    }
+
+    @Test
+    public void whenCreatePostByParticipatesNullThenReturnNewPostAndIdGreaterZero() {
+        var post = Post.of()
+                .description("postDescription")
+                .created(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))
+                .user(user1)
+                .priceHistoryAdd(priceHistory1).priceHistoryAdd(priceHistory2)
+                .car(car)
+                .filesAdd(file1).filesAdd(file2)
+                .build();
+        postRepository.create(post);
+        var postInDb = postRepository.findPostById(post.getId());
+
+        assertThat(post.getId()).isGreaterThan(0);
+        assertThat(postInDb).usingRecursiveComparison().isEqualTo(Optional.of(post));
+    }
+
+    @Test
+    public void whenCreatePostByFilesNullThenReturnNewPostAndIdGreaterZero() {
+        var post = Post.of()
+                .description("postDescription")
+                .created(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))
+                .user(user1)
+                .priceHistoryAdd(priceHistory1).priceHistoryAdd(priceHistory2)
+                .participatesAdd(user1).participatesAdd(user2)
+                .car(car)
+                .build();
+        postRepository.create(post);
+        var postInDb = postRepository.findPostById(post.getId());
+
+        assertThat(post.getId()).isGreaterThan(0);
+        assertThat(postInDb).usingRecursiveComparison().isEqualTo(Optional.of(post));
+    }
+
+    @Test
+    void whenFindPostByIdThenReturnOptionalEmpty() {
+        var actual = postRepository.findPostById(-1);
+        assertThat(actual).isEmpty();
+    }
+
+    @Test
+    void whenUpdatePostDescriptionAndFindByIdThenReturnUpdatePostOptional() {
+        var post = Post.of()
+                .description("postDescription")
+                .created(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))
+                .user(user1)
+                .priceHistoryAdd(priceHistory1).priceHistoryAdd(priceHistory2)
+                .participatesAdd(user1).participatesAdd(user2)
+                .car(car)
+                .filesAdd(file1).filesAdd(file2)
+                .build();
+        postRepository.create(post);
+        post.setDescription("newDescriptionOfUpdate");
+        postRepository.update(post);
+        var postInDb = postRepository.findPostById(post.getId());
+        assertThat(postInDb).usingRecursiveComparison().isEqualTo(Optional.of(post));
     }
 
     @Test
@@ -140,7 +258,7 @@ class HibernatePostRepositoryTest {
 
     @Test
     void findAllPostByBrand() {
-        var posts = postRepository.findAllPostByBrand(99);
+        var posts = postRepository.findAllPostByBrand(-1);
         assertThat(posts.isEmpty()).isTrue();
     }
 }

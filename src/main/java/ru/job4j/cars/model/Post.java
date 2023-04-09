@@ -6,8 +6,8 @@ import ru.job4j.cars.model.filemodel.File;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * 3. Мидл
@@ -22,6 +22,7 @@ import java.util.List;
 @Table(name = "auto_posts")
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder(builderMethodName = "of")
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString(onlyExplicitlyIncluded = false)
 @Getter
@@ -38,15 +39,19 @@ public class Post {
     private LocalDateTime done;
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(nullable = false, name = "auto_user_id")
+    @JoinColumn(nullable = false, name = "user_id")
     private User user;
-
+    /**
+     * История изменения цен авто
+     */
     @ToString.Exclude
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Singular("priceHistoryAdd")
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(nullable = false, name = "post_id")
-    @Singular("addPriceHistory")
-    private List<PriceHistory> priceHistory = new ArrayList<>();
-
+    private Set<PriceHistory> priceHistory = new HashSet<>();
+    /**
+     * Подписчики на объявление
+     */
     @ToString.Exclude
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinTable(
@@ -54,16 +59,19 @@ public class Post {
             joinColumns = {@JoinColumn(nullable = false, name = "post_id")},
             inverseJoinColumns = {@JoinColumn(nullable = false, name = "user_id")}
     )
-    @Singular("addParticipate")
-    private List<User> participates = new ArrayList<>();
+    @Singular("participatesAdd")
+    private Set<User> participates = new HashSet<>();
 
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false, name = "car_id", foreignKey = @ForeignKey(name = "CAR_ID_FK"))
     private Car car;
+    /**
+     * Фото обь явления
+     */
     @ToString.Exclude
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(nullable = false, name = "post_id", foreignKey = @ForeignKey(name = "POST_ID_FK"))
-    @Singular("addPriceHistory")
-    private List<File> files = new ArrayList<>();
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(nullable = false, name = "post_id")
+    @Singular("filesAdd")
+    private Set<File> files = new HashSet<>();
 }
