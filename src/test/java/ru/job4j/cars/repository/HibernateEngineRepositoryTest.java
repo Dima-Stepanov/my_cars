@@ -5,7 +5,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import ru.job4j.cars.model.Engine;
+import ru.job4j.cars.model.dao.Engine;
 
 import javax.persistence.PersistenceException;
 import java.util.List;

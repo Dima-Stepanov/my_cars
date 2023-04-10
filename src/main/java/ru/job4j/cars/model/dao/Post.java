@@ -1,7 +1,6 @@
-package ru.job4j.cars.model;
+package ru.job4j.cars.model.dao;
 
 import lombok.*;
-import ru.job4j.cars.model.filemodel.File;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;

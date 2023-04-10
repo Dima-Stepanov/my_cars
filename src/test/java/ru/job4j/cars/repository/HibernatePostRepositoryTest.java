@@ -3,8 +3,7 @@ package ru.job4j.cars.repository;
 import org.hibernate.PropertyValueException;
 import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.*;
-import ru.job4j.cars.model.*;
-import ru.job4j.cars.model.filemodel.*;
+import ru.job4j.cars.model.dao.*;
 
 import javax.persistence.PersistenceException;
 import java.time.LocalDateTime;

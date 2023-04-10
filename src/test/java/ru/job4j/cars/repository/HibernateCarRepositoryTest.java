@@ -2,7 +2,7 @@ package ru.job4j.cars.repository;
 
 import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.*;
-import ru.job4j.cars.model.*;
+import ru.job4j.cars.model.dao.*;
 
 import javax.persistence.PersistenceException;
 import java.util.*;

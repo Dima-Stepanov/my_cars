@@ -1,7 +1,7 @@
 package ru.job4j.cars.service.fileservice;
 
-import ru.job4j.cars.model.filemodel.File;
-import ru.job4j.cars.model.filemodel.FileDTO;
+import ru.job4j.cars.model.dao.File;
+import ru.job4j.cars.model.dto.FileDTO;
 
 import java.util.Optional;
 

@@ -14,15 +14,15 @@
         <property name="hibernate.format_sql">true</property>
         <property name="hibernate.dialect">org.hibernate.dialect.H2Dialect</property>
 
-        <mapping class="ru.job4j.cars.model.filemodel.File"/>
-        <mapping class="ru.job4j.cars.model.User"/>
-        <mapping class="ru.job4j.cars.model.Post"/>
-        <mapping class="ru.job4j.cars.model.PriceHistory"/>
-        <mapping class="ru.job4j.cars.model.Owner"/>
-        <mapping class="ru.job4j.cars.model.Engine"/>
-        <mapping class="ru.job4j.cars.model.CarBrand"/>
-        <mapping class="ru.job4j.cars.model.CarModel"/>
-        <mapping class="ru.job4j.cars.model.Car"/>
+        <mapping class="ru.job4j.cars.model.dao.File"/>
+        <mapping class="ru.job4j.cars.model.dao.User"/>
+        <mapping class="ru.job4j.cars.model.dao.Post"/>
+        <mapping class="ru.job4j.cars.model.dao.PriceHistory"/>
+        <mapping class="ru.job4j.cars.model.dao.Owner"/>
+        <mapping class="ru.job4j.cars.model.dao.Engine"/>
+        <mapping class="ru.job4j.cars.model.dao.CarBrand"/>
+        <mapping class="ru.job4j.cars.model.dao.CarModel"/>
+        <mapping class="ru.job4j.cars.model.dao.Car"/>
 
     </session-factory>
 </hibernate-configuration>

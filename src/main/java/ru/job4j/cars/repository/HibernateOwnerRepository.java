@@ -2,7 +2,7 @@ package ru.job4j.cars.repository;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Repository;
-import ru.job4j.cars.model.Owner;
+import ru.job4j.cars.model.dao.Owner;
 
 import java.util.List;
 import java.util.Map;

@@ -1,6 +1,6 @@
 package ru.job4j.cars.repository;
 
-import ru.job4j.cars.model.Owner;
+import ru.job4j.cars.model.dao.Owner;
 
 import java.util.List;
 import java.util.Optional;

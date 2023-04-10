@@ -1,4 +1,4 @@
-package ru.job4j.cars.model;
+package ru.job4j.cars.model.dao;
 
 import lombok.*;
 

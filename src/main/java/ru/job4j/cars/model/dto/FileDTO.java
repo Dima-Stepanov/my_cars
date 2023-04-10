@@ -1,4 +1,4 @@
-package ru.job4j.cars.model.filemodel;
+package ru.job4j.cars.model.dto;
 
 import lombok.*;
 
@@ -12,11 +12,9 @@ import lombok.*;
  * @author Dmitry Stepanov, user Dima_Nout
  * @since 01.04.2023
  */
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Setter
-@ToString
 public class FileDTO {
     private String name;
     @ToString.Exclude

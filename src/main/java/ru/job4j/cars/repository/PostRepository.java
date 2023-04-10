@@ -1,6 +1,6 @@
 package ru.job4j.cars.repository;
 
-import ru.job4j.cars.model.Post;
+import ru.job4j.cars.model.dao.Post;
 
 import java.util.Collection;
 import java.util.Optional;
