@@ -9,9 +9,7 @@ import ru.job4j.cars.model.filemodel.*;
 import javax.persistence.PersistenceException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
@@ -30,27 +28,30 @@ class HibernatePostRepositoryTest {
     private static CrudRepository crud;
     private static HibernatePostRepository postRepository;
     private CarBrand carBrand;
+    private CarBrand carBrand2;
     private CarModel carModel;
+    private CarModel carModel2;
     private Engine engine;
     private User user1;
     private User user2;
     private Owner owner1;
     private Owner owner2;
-    private Car car;
+    private Car car1;
+    private Car car2;
     private PriceHistory priceHistory1;
     private PriceHistory priceHistory2;
     private File file1;
     private File file2;
 
     @BeforeAll
-    public static void initCarRepository() {
+    static void initCarRepository() {
         sf = HibernateConfigurationTest.getSessionFactory();
         crud = new CrudRepository(sf);
         postRepository = new HibernatePostRepository(crud);
     }
 
     @AfterAll
-    public static void closeResource() {
+    static void closeResource() {
         if (!sf.isClosed()) {
             sf.close();
         }
@@ -78,12 +79,16 @@ class HibernatePostRepositoryTest {
     }
 
     @BeforeEach
-    public void initEntity() {
+    void initEntity() {
         carBrand = new CarBrand(0, "CarBrandPost");
         crud.run(session -> session.persist(carBrand));
+        carBrand2 = new CarBrand(0, "CarBrandPost2");
+        crud.run(session -> session.persist(carBrand2));
 
         carModel = new CarModel(0, "CarModelPost", carBrand);
         crud.run(session -> session.persist(carModel));
+        carModel2 = new CarModel(0, "CarModelPost2", carBrand2);
+        crud.run(session -> session.persist(carModel2));
 
         engine = new Engine(0, "EnginePost");
         crud.run(session -> session.persist(engine));
@@ -98,8 +103,10 @@ class HibernatePostRepositoryTest {
         crud.run(session -> session.persist(owner1));
         crud.run(session -> session.persist(owner2));
 
-        car = new Car(0, "carName", carModel, engine, Set.of(owner1, owner2));
-        crud.run(session -> session.persist(car));
+        car1 = new Car(0, "carName", carModel, engine, Set.of(owner1));
+        crud.run(session -> session.persist(car1));
+        car2 = new Car(0, "carName2", carModel2, engine, Set.of(owner2));
+        crud.run(session -> session.persist(car2));
 
         priceHistory1 = new PriceHistory(0, 200000, 150000,
                 LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).minusDays(10));
@@ -111,7 +118,7 @@ class HibernatePostRepositoryTest {
     }
 
     @AfterEach
-    public void deleteAfter() {
+    void deleteAfter() {
         deleteEntity();
     }
 
@@ -122,8 +129,8 @@ class HibernatePostRepositoryTest {
                 .created(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))
                 .user(user1)
                 .priceHistoryAdd(priceHistory1).priceHistoryAdd(priceHistory2)
-                .participatesAdd(user1).participatesAdd(user2)
-                .car(car)
+                .participateAdd(user1).participateAdd(user2)
+                .car(car1)
                 .filesAdd(file1).filesAdd(file2)
                 .build();
         postRepository.create(post);
@@ -134,13 +141,13 @@ class HibernatePostRepositoryTest {
     }
 
     @Test
-    public void whenCreatedPostByUserNullThenReturnPersistenceExceptionAndPropertyValueExceptionAndMessageNotNull() {
+    void whenCreatedPostByUserNullThenReturnPersistenceExceptionAndPropertyValueExceptionAndMessageNotNull() {
         var post = Post.of()
                 .description("postDescription")
                 .created(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))
                 .priceHistoryAdd(priceHistory1).priceHistoryAdd(priceHistory2)
-                .participatesAdd(user1).participatesAdd(user2)
-                .car(car)
+                .participateAdd(user1).participateAdd(user2)
+                .car(car1)
                 .filesAdd(file1).filesAdd(file2)
                 .build();
         assertThatThrownBy(() -> postRepository.create(post))
@@ -150,13 +157,13 @@ class HibernatePostRepositoryTest {
     }
 
     @Test
-    public void whenCreatePostByCarNullThenReturnPersistenceExceptionAndPropertyValueExceptionAndMessageNotNull() {
+    void whenCreatePostByCarNullThenReturnPersistenceExceptionAndPropertyValueExceptionAndMessageNotNull() {
         var post = Post.of()
                 .description("postDescription")
                 .user(user1)
                 .created(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))
                 .priceHistoryAdd(priceHistory1).priceHistoryAdd(priceHistory2)
-                .participatesAdd(user1).participatesAdd(user2)
+                .participateAdd(user1).participateAdd(user2)
                 .filesAdd(file1).filesAdd(file2)
                 .build();
         assertThatThrownBy(() -> postRepository.create(post))
@@ -166,13 +173,13 @@ class HibernatePostRepositoryTest {
     }
 
     @Test
-    public void whenCreatePostByPriceHistoryNullThenReturnNewPostAndIdGreaterZero() {
+    void whenCreatePostByPriceHistoryNullThenReturnNewPostAndIdGreaterZero() {
         var post = Post.of()
                 .description("postDescription")
                 .created(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))
                 .user(user1)
-                .participatesAdd(user1).participatesAdd(user2)
-                .car(car)
+                .participateAdd(user1).participateAdd(user2)
+                .car(car1)
                 .filesAdd(file1).filesAdd(file2)
                 .build();
         postRepository.create(post);
@@ -183,13 +190,13 @@ class HibernatePostRepositoryTest {
     }
 
     @Test
-    public void whenCreatePostByParticipatesNullThenReturnNewPostAndIdGreaterZero() {
+    void whenCreatePostByParticipatesNullThenReturnNewPostAndIdGreaterZero() {
         var post = Post.of()
                 .description("postDescription")
                 .created(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))
                 .user(user1)
                 .priceHistoryAdd(priceHistory1).priceHistoryAdd(priceHistory2)
-                .car(car)
+                .car(car1)
                 .filesAdd(file1).filesAdd(file2)
                 .build();
         postRepository.create(post);
@@ -200,14 +207,29 @@ class HibernatePostRepositoryTest {
     }
 
     @Test
-    public void whenCreatePostByFilesNullThenReturnNewPostAndIdGreaterZero() {
+    void whenCreatePostByFilesNullThenReturnNewPostAndIdGreaterZero() {
         var post = Post.of()
                 .description("postDescription")
                 .created(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))
                 .user(user1)
                 .priceHistoryAdd(priceHistory1).priceHistoryAdd(priceHistory2)
-                .participatesAdd(user1).participatesAdd(user2)
-                .car(car)
+                .participateAdd(user1).participateAdd(user2)
+                .car(car1)
+                .build();
+        postRepository.create(post);
+        var postInDb = postRepository.findPostById(post.getId());
+
+        assertThat(post.getId()).isGreaterThan(0);
+        assertThat(postInDb).usingRecursiveComparison().isEqualTo(Optional.of(post));
+    }
+
+    @Test
+    void whenCreatePostByPriceHistoryParticipatesFileIsNullThenReturnNewPostAndIdGreaterZero() {
+        var post = Post.of()
+                .description("postDescription")
+                .created(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))
+                .user(user1)
+                .car(car1)
                 .build();
         postRepository.create(post);
         var postInDb = postRepository.findPostById(post.getId());
@@ -229,8 +251,8 @@ class HibernatePostRepositoryTest {
                 .created(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))
                 .user(user1)
                 .priceHistoryAdd(priceHistory1).priceHistoryAdd(priceHistory2)
-                .participatesAdd(user1).participatesAdd(user2)
-                .car(car)
+                .participateAdd(user1).participateAdd(user2)
+                .car(car1)
                 .filesAdd(file1).filesAdd(file2)
                 .build();
         postRepository.create(post);
@@ -241,23 +263,384 @@ class HibernatePostRepositoryTest {
     }
 
     @Test
-    void delete() {
+    void whenUpdatePostCreatedAndDoneAndFndByIdThenReturnUpdatePostOptional() {
+        var post = Post.of()
+                .description("postDescription")
+                .created(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))
+                .user(user1)
+                .priceHistoryAdd(priceHistory1).priceHistoryAdd(priceHistory2)
+                .participateAdd(user1).participateAdd(user2)
+                .car(car1)
+                .filesAdd(file1).filesAdd(file2)
+                .build();
+        postRepository.create(post);
+
+        post.setCreated(LocalDateTime.now().minusDays(10).truncatedTo(ChronoUnit.SECONDS));
+        post.setDone(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
+        postRepository.update(post);
+        var postInDb = postRepository.findPostById(post.getId());
+
+        assertThat(postInDb).usingRecursiveComparison().isEqualTo(Optional.of(post));
     }
 
     @Test
-    void findAllPost() {
+    void whenUpdatePostUserAndByIdThenReturnUpdatePostOptional() {
+        var post = Post.of()
+                .description("postDescription")
+                .created(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))
+                .user(user1)
+                .priceHistoryAdd(priceHistory1).priceHistoryAdd(priceHistory2)
+                .participateAdd(user1).participateAdd(user2)
+                .car(car1)
+                .filesAdd(file1).filesAdd(file2)
+                .build();
+        postRepository.create(post);
+
+        post.setUser(user2);
+        postRepository.update(post);
+        var postInDb = postRepository.findPostById(post.getId());
+        assertThat(postInDb).usingRecursiveComparison().isEqualTo(Optional.of(post));
     }
 
     @Test
-    void findAllPostLastDayOrderByCreated() {
+    void whenUpdatePostPriceHistoryAddAndByIdThenReturnUpdatePostOptional() {
+        var post = Post.of()
+                .description("postDescription")
+                .created(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))
+                .user(user1)
+                .priceHistoryAdd(priceHistory1)
+                .participateAdd(user1).participateAdd(user2)
+                .car(car1)
+                .filesAdd(file1).filesAdd(file2)
+                .build();
+        postRepository.create(post);
+
+        post.setPriceHistory(Set.of(priceHistory2));
+
+        postRepository.update(post);
+
+        var postInDb = postRepository.findPostById(post.getId());
+        assertThat(postInDb.get().getPriceHistory().size()).isEqualTo(2);
     }
 
     @Test
-    void findAllPostWithPhotos() {
+    void whenUpdatePostPriceHistoryAndByIdThenReturnUpdatePostOptional() {
+        var post = Post.of()
+                .description("postDescription")
+                .created(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))
+                .user(user1)
+                .participateAdd(user1).participateAdd(user2)
+                .car(car1)
+                .filesAdd(file1).filesAdd(file2)
+                .build();
+        postRepository.create(post);
+
+        post.setPriceHistory(Set.of(priceHistory2));
+
+        postRepository.update(post);
+
+        var postInDb = postRepository.findPostById(post.getId());
+        assertThat(postInDb.get().getPriceHistory().size()).isEqualTo(1);
     }
 
     @Test
-    void findAllPostByBrand() {
+    void whenUpdatePostParticipateEmptyAddUserAndByIdThenReturnUpdatePostOptional() {
+        var post = Post.of()
+                .description("postDescription")
+                .created(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))
+                .user(user1)
+                .car(car1)
+                .filesAdd(file1).filesAdd(file2)
+                .build();
+        postRepository.create(post);
+
+        post.setParticipates(Set.of(user2));
+
+        postRepository.update(post);
+
+        var postInDb = postRepository.findPostById(post.getId());
+        assertThat(postInDb.get().getParticipates().size()).isEqualTo(1);
+    }
+
+    @Test
+    void whenUpdatePostParticipateSizeTwoRemoveUserAndByIdThenReturnUpdatePostOptional() {
+        var post = Post.of()
+                .description("postDescription")
+                .created(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))
+                .participateAdd(user1).participateAdd(user2)
+                .user(user1)
+                .car(car1)
+                .filesAdd(file1).filesAdd(file2)
+                .build();
+        postRepository.create(post);
+
+        post.setParticipates(Set.of(user1));
+        postRepository.update(post);
+
+        var postInDb = postRepository.findPostById(post.getId());
+        assertThat(postInDb.get().getParticipates().size()).isEqualTo(1);
+    }
+
+    @Test
+    void whenUpdatePostFilesEmptyAddFileAndByIdThenReturnUpdatePostOptional() {
+        var post = Post.of()
+                .description("postDescription")
+                .created(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))
+                .user(user1)
+                .car(car1)
+                .build();
+        postRepository.create(post);
+
+        post.setFiles(Set.of(file1));
+
+        postRepository.update(post);
+
+        var postInDb = postRepository.findPostById(post.getId());
+        assertThat(postInDb.get().getFiles().size()).isEqualTo(1);
+    }
+
+    @Test
+    void whenUpdatePostFilesSizeTwoRemoveFileAndByIdThenReturnUpdatePostOptionalFileSizeOne() {
+        var post = Post.of()
+                .description("postDescription")
+                .created(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))
+                .user(user1)
+                .car(car1)
+                .filesAdd(file1).filesAdd(file2)
+                .build();
+        postRepository.create(post);
+
+        post.setFiles(Set.of(file2));
+
+        postRepository.update(post);
+
+        var postInDb = postRepository.findPostById(post.getId());
+        assertThat(postInDb.get().getFiles().size()).isEqualTo(1);
+    }
+
+    @Test
+    void whenDeletePostThenFindByIdReturnOptionalEmpty() {
+        var post = Post.of()
+                .description("postDescription")
+                .created(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))
+                .user(user1)
+                .participateAdd(user1).participateAdd(user2)
+                .car(car1)
+                .build();
+        postRepository.create(post);
+
+        postRepository.delete(post.getId());
+        var postInDb = postRepository.findPostById(post.getId());
+
+        assertThat(postInDb).isEmpty();
+    }
+
+    @Test
+    void whenFindAllPostThenReturnCollectionEmpty() {
+        var allPost = postRepository.findAllPost();
+        assertThat(allPost.isEmpty()).isTrue();
+    }
+
+    @Test
+    void whenFindAllPostThenReturnCollectionPost() {
+        var post1 = Post.of()
+                .description("postDescription1")
+                .created(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))
+                .priceHistoryAdd(priceHistory1)
+                .user(user1)
+                .participateAdd(user2)
+                .car(car1)
+                .filesAdd(file1)
+                .build();
+        var post2 = Post.of()
+                .description("postDescription2")
+                .created(LocalDateTime.now().minusDays(5).truncatedTo(ChronoUnit.SECONDS))
+                .priceHistoryAdd(priceHistory2)
+                .user(user2)
+                .participateAdd(user1)
+                .car(car2)
+                .filesAdd(file2)
+                .build();
+        postRepository.create(post1);
+        postRepository.create(post2);
+
+        var expectedAllPosts = List.of(post1, post2);
+        var actualAllPosts = postRepository.findAllPost();
+
+        assertThat(actualAllPosts).usingRecursiveComparison().isEqualTo(expectedAllPosts);
+    }
+
+    @Test
+    void whenFindAllPostLastDayOrderByCreatedThenReturnCollectionEmpty() {
+        var post1 = Post.of()
+                .description("postDescription1")
+                .created(LocalDateTime.now().minusDays(10).truncatedTo(ChronoUnit.SECONDS))
+                .priceHistoryAdd(priceHistory1)
+                .user(user1)
+                .participateAdd(user2)
+                .car(car1)
+                .filesAdd(file1)
+                .build();
+        var post2 = Post.of()
+                .description("postDescription2")
+                .created(LocalDateTime.now().minusDays(5).truncatedTo(ChronoUnit.SECONDS))
+                .priceHistoryAdd(priceHistory2)
+                .user(user2)
+                .participateAdd(user1)
+                .car(car2)
+                .filesAdd(file2)
+                .build();
+        postRepository.create(post1);
+        postRepository.create(post2);
+
+        var actualLostDayPosts = postRepository.findAllPostLastDayOrderByCreated();
+
+        assertThat(actualLostDayPosts.isEmpty()).isTrue();
+    }
+
+    @Test
+    void whenFindAllPostLastDayOrderByCreatedThenReturnCollectionSize1() {
+        var post1 = Post.of()
+                .description("postDescription1")
+                .created(LocalDateTime.now().minusDays(10).truncatedTo(ChronoUnit.SECONDS))
+                .priceHistoryAdd(priceHistory1)
+                .user(user1)
+                .participateAdd(user2)
+                .car(car1)
+                .filesAdd(file1)
+                .build();
+        var post2 = Post.of()
+                .description("postDescription2")
+                .created(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))
+                .priceHistoryAdd(priceHistory2)
+                .user(user2)
+                .participateAdd(user1)
+                .car(car2)
+                .filesAdd(file2)
+                .build();
+        postRepository.create(post1);
+        postRepository.create(post2);
+
+        var expectedLostDayPost = List.of(post2);
+        var actualLostDayPosts = postRepository.findAllPostLastDayOrderByCreated();
+
+        assertThat(actualLostDayPosts).usingRecursiveComparison().isEqualTo(expectedLostDayPost);
+    }
+
+    @Test
+    void whenFindAllPostLastDayThenReturnCollectionPost() {
+        var post1 = Post.of()
+                .description("postDescription1")
+                .created(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))
+                .priceHistoryAdd(priceHistory1)
+                .user(user1)
+                .participateAdd(user2)
+                .car(car1)
+                .filesAdd(file1)
+                .build();
+        var post2 = Post.of()
+                .description("postDescription2")
+                .created(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))
+                .priceHistoryAdd(priceHistory2)
+                .user(user2)
+                .participateAdd(user1)
+                .car(car2)
+                .filesAdd(file2)
+                .build();
+        postRepository.create(post1);
+        postRepository.create(post2);
+
+        var expectedLostDayPosts = List.of(post1, post2);
+        var actualLostDayPosts = postRepository.findAllPostLastDayOrderByCreated();
+
+        assertThat(actualLostDayPosts).usingRecursiveComparison().isEqualTo(expectedLostDayPosts);
+    }
+
+    @Test
+    void whenFindAllPostWithPhotosThenReturnCollectionPostSizeOne() {
+        var post1 = Post.of()
+                .description("postDescription1")
+                .created(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))
+                .priceHistoryAdd(priceHistory1)
+                .user(user1)
+                .participateAdd(user2)
+                .car(car1)
+                .build();
+        var post2 = Post.of()
+                .description("postDescription2")
+                .created(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))
+                .priceHistoryAdd(priceHistory2)
+                .user(user2)
+                .participateAdd(user1)
+                .car(car2)
+                .filesAdd(file2).filesAdd(file1)
+                .build();
+        postRepository.create(post1);
+        postRepository.create(post2);
+
+        var expectedAllPostsWithPhoto = List.of(post2);
+        var actualAllPostsWithPhoto = postRepository.findAllPostWithPhotos();
+
+        assertThat(actualAllPostsWithPhoto).usingRecursiveComparison().isEqualTo(expectedAllPostsWithPhoto);
+    }
+
+    @Test
+    void whenFindAllPostWithPhotosThenReturnCollectionEmpty() {
+        var post1 = Post.of()
+                .description("postDescription1")
+                .created(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))
+                .priceHistoryAdd(priceHistory1)
+                .user(user1)
+                .participateAdd(user2)
+                .car(car1)
+                .build();
+        var post2 = Post.of()
+                .description("postDescription2")
+                .created(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))
+                .priceHistoryAdd(priceHistory2)
+                .user(user2)
+                .participateAdd(user1)
+                .car(car2)
+                .build();
+        postRepository.create(post1);
+        postRepository.create(post2);
+
+        var actualAllPostsWithPhoto = postRepository.findAllPostWithPhotos();
+
+        assertThat(actualAllPostsWithPhoto.isEmpty()).isTrue();
+    }
+
+    @Test
+    void whenFindAllPostByBrandThenReturnCollectionPostSizeOne() {
+        var post1 = Post.of()
+                .description("postDescription1")
+                .created(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))
+                .priceHistoryAdd(priceHistory1)
+                .user(user1)
+                .participateAdd(user2)
+                .car(car1)
+                .filesAdd(file1)
+                .build();
+        var post2 = Post.of()
+                .description("postDescription2")
+                .created(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))
+                .priceHistoryAdd(priceHistory2)
+                .user(user2)
+                .participateAdd(user1)
+                .car(car2)
+                .filesAdd(file2)
+                .build();
+        postRepository.create(post1);
+        postRepository.create(post2);
+
+        var expectedAllPostsByBrandPost2 = List.of(post1);
+        var actualAllPostsByBrandPost2 = postRepository.findAllPostByBrand(post1.getCar().getCarModel().getCarBrand().getId());
+
+        assertThat(actualAllPostsByBrandPost2).usingRecursiveComparison().isEqualTo(expectedAllPostsByBrandPost2);
+    }
+
+    @Test
+    void whenFindAllPostByBrandThenReturnCollectionsEmpty() {
         var posts = postRepository.findAllPostByBrand(-1);
         assertThat(posts.isEmpty()).isTrue();
     }

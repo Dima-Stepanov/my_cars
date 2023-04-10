@@ -3,7 +3,6 @@ package ru.job4j.cars.model;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.Objects;
 
 /**
  * 3. Мидл
@@ -28,6 +27,7 @@ public class User {
     @EqualsAndHashCode.Include
     private int id;
     @Column(nullable = false, unique = true)
+    @EqualsAndHashCode.Include
     private String login;
     @Column(nullable = false)
     private String password;

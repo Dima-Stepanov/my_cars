@@ -30,5 +30,6 @@ public class File {
     @Column(nullable = false)
     private String name;
     @Column(nullable = false, unique = true)
+    @EqualsAndHashCode.Include
     private String path;
 }

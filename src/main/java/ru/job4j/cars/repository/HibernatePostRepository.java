@@ -25,33 +25,17 @@ import java.util.Optional;
 public class HibernatePostRepository implements PostRepository {
     private final CrudRepository crudRepository;
 
-    private final String hqlPost = new StringBuilder()
-            .append("FROM Post AS po ")
-            .append("JOIN FETCH po.user AS us ")
-            .append("LEFT JOIN FETCH po.priceHistory AS ph ")
-            .append("LEFT JOIN FETCH po.participates AS pa ")
-            .append("JOIN FETCH po.car AS ca ")
-            .append("JOIN FETCH ca.carModel AS cm ")
-            .append("JOIN FETCH cm.carBrand AS cb ")
-            .append("JOIN FETCH ca.engine AS en ")
-            .append("LEFT JOIN FETCH ca.owners AS ow ")
-            .append("LEFT JOIN FETCH ow.user AS owu ")
-            .append("LEFT JOIN FETCH po.files AS fi ")
-            .toString();
-
-    private final String hqlPostNotFiles = new StringBuilder()
-            .append("FROM Post AS po ")
-            .append("JOIN FETCH po.user AS us ")
-            .append("LEFT JOIN FETCH po.priceHistory AS ph ")
-            .append("LEFT JOIN FETCH po.participates AS pa ")
-            .append("JOIN FETCH po.car AS ca ")
-            .append("JOIN FETCH ca.carModel AS cm ")
-            .append("JOIN FETCH cm.carBrand AS cb ")
-            .append("JOIN FETCH ca.engine AS en ")
-            .append("LEFT JOIN FETCH ca.owners AS ow ")
-            .append("LEFT JOIN FETCH ow.user AS owu ")
-            .append("JOIN FETCH po.files AS fi ")
-            .toString();
+    private final String hqlPost = "FROM Post AS po "
+                                   + "JOIN FETCH po.user AS us "
+                                   + "LEFT JOIN FETCH po.priceHistory AS ph "
+                                   + "LEFT JOIN FETCH po.participates AS pa "
+                                   + "JOIN FETCH po.car AS ca "
+                                   + "JOIN FETCH ca.carModel AS cm "
+                                   + "JOIN FETCH cm.carBrand AS cb "
+                                   + "JOIN FETCH ca.engine AS en "
+                                   + "LEFT JOIN FETCH ca.owners AS ow "
+                                   + "LEFT JOIN FETCH ow.user AS owu "
+                                   + "LEFT JOIN FETCH po.files AS fi ";
 
     @Override
     public Post create(Post post) {
@@ -89,6 +73,11 @@ public class HibernatePostRepository implements PostRepository {
         );
     }
 
+    /**
+     * Поиск всех объявлений созданных в текущий день
+     *
+     * @return Collection Post
+     */
     @Override
     public Collection<Post> findAllPostLastDayOrderByCreated() {
         return crudRepository.query(
@@ -101,6 +90,17 @@ public class HibernatePostRepository implements PostRepository {
 
     @Override
     public Collection<Post> findAllPostWithPhotos() {
+        String hqlPostNotFiles = "FROM Post AS po "
+                                 + "JOIN FETCH po.user AS us "
+                                 + "LEFT JOIN FETCH po.priceHistory AS ph "
+                                 + "LEFT JOIN FETCH po.participates AS pa "
+                                 + "JOIN FETCH po.car AS ca "
+                                 + "JOIN FETCH ca.carModel AS cm "
+                                 + "JOIN FETCH cm.carBrand AS cb "
+                                 + "JOIN FETCH ca.engine AS en "
+                                 + "LEFT JOIN FETCH ca.owners AS ow "
+                                 + "LEFT JOIN FETCH ow.user AS owu "
+                                 + "JOIN FETCH po.files AS fi ";
         return crudRepository.query(
                 "SELECT DISTINCT po " + hqlPostNotFiles,
                 Post.class

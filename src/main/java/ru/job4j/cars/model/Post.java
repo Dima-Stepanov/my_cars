@@ -45,9 +45,9 @@ public class Post {
      * История изменения цен авто
      */
     @ToString.Exclude
-    @Singular("priceHistoryAdd")
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(nullable = false, name = "post_id")
+    @JoinColumn(nullable = false, name = "post_id", foreignKey = @ForeignKey(name = "FK_POST_PRICE_HISTORY"))
+    @Singular("priceHistoryAdd")
     private Set<PriceHistory> priceHistory = new HashSet<>();
     /**
      * Подписчики на объявление
@@ -59,7 +59,7 @@ public class Post {
             joinColumns = {@JoinColumn(nullable = false, name = "post_id")},
             inverseJoinColumns = {@JoinColumn(nullable = false, name = "user_id")}
     )
-    @Singular("participatesAdd")
+    @Singular("participateAdd")
     private Set<User> participates = new HashSet<>();
 
     @ToString.Exclude
@@ -70,8 +70,8 @@ public class Post {
      * Фото обь явления
      */
     @ToString.Exclude
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(nullable = false, name = "post_id")
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(nullable = false, name = "post_id", unique = true, foreignKey = @ForeignKey(name = "FK_POST_FILE"))
     @Singular("filesAdd")
     private Set<File> files = new HashSet<>();
 }

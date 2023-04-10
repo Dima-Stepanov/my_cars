@@ -5,5 +5,5 @@ create table price_history
     before  bigint not null,
     after   bigint not null,
     created timestamp with time zone default now(),
-    post_id int    not null references auto_posts (id)
+    post_id int    not null references auto_posts(id)
 );
