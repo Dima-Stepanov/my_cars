@@ -28,5 +28,5 @@ public interface PostService {
 
     Collection<PostDTO> findAllPostWithPhotos();
 
-    Collection<PostDTO> findAllPostByBrand();
+    Collection<PostDTO> findAllPostByBrand(int brandId);
 }
