@@ -43,6 +43,11 @@ class HibernatePostRepositoryTest {
     private File file2;
 
     @BeforeAll
+    public static void deleteBeforeAll() {
+        deleteEntity();
+    }
+
+    @BeforeAll
     static void initCarRepository() {
         sf = HibernateConfigurationTest.getSessionFactory();
         crud = new CrudRepository(sf);
@@ -56,7 +61,7 @@ class HibernatePostRepositoryTest {
         }
     }
 
-    private void deleteEntity() {
+    private static void deleteEntity() {
         crud.run("DELETE FROM PriceHistory AS ph WHERE ph.id >:phId",
                 Map.of("phId", 0));
         crud.run("DELETE FROM File AS fi WHERE fi.id >:fileId",

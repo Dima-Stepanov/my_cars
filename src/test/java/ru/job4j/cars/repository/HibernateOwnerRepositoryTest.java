@@ -28,7 +28,7 @@ class HibernateOwnerRepositoryTest {
     private User user1;
     private User user2;
 
-    private void deleteEntity() {
+    private static void deleteOwnerUser() {
         var crud = new CrudRepository(sf);
         crud.run("delete from Owner as o where o.id >:oId",
                 Map.of("oId", 0));
@@ -41,6 +41,11 @@ class HibernateOwnerRepositoryTest {
         sf = HibernateConfigurationTest.getSessionFactory();
         var crud = new CrudRepository(sf);
         ownerRepository = new HibernateOwnerRepository(crud);
+    }
+
+    @BeforeAll
+    public static void deleteBeforeAll() {
+        deleteOwnerUser();
     }
 
     @AfterAll
@@ -62,7 +67,7 @@ class HibernateOwnerRepositoryTest {
 
     @AfterEach
     public void deleteAfter() {
-        deleteEntity();
+        deleteOwnerUser();
     }
 
     @Test

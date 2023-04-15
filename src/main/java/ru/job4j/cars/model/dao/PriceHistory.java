@@ -27,8 +27,10 @@ public class PriceHistory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @Column(nullable = false)
+    @EqualsAndHashCode.Exclude
     private long before;
     @Column(nullable = false)
+    @EqualsAndHashCode.Exclude
     private long after;
     @EqualsAndHashCode.Exclude
     private LocalDateTime created = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);

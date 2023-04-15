@@ -29,6 +29,7 @@ public class PostMapper {
         var allPriceHistory = getAllPriceHistory(post.getPriceHistory());
         var filesId = getAllFileID(post.getFiles());
         return PostDTO.of()
+                .id(post.getId())
                 .description(post.getDescription())
                 .created(post.getCreated())
                 .done(post.getDone())
@@ -58,8 +59,7 @@ public class PostMapper {
                 beforePrice = priceHistory.getBefore();
             }
             if (priceHistory.getAfter() == 0) {
-                afterPrice = priceHistory.getBefore();
-                break;
+                continue;
             }
             afterPrice = priceHistory.getAfter();
         }
@@ -75,6 +75,7 @@ public class PostMapper {
      */
     private int[] getAllFileID(Collection<File> files) {
         return files.stream()
-                .mapToInt(File::getId).toArray();
+                .mapToInt(File::getId)
+                .sorted().toArray();
     }
 }

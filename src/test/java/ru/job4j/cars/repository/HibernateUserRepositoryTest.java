@@ -25,12 +25,16 @@ class HibernateUserRepositoryTest {
     private static SessionFactory sf;
     private static HibernateUserRepository userRepository;
 
-    private void deleteUsers() {
+    private static void deleteUsers() {
         var crud = new CrudRepository(sf);
         crud.run("delete User as u where u.id >:uId",
                 Map.of("uId", 0));
     }
 
+    @BeforeAll
+    public static void deleteBeforeAll() {
+        deleteUsers();
+    }
 
     @BeforeAll
     public static void initRepository() {

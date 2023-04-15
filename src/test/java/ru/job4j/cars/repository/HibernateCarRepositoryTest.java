@@ -31,7 +31,7 @@ class HibernateCarRepositoryTest {
     private Owner owner1;
     private Owner owner2;
 
-    private void deleteEntity() {
+    private static void deleteEntity() {
         crud.run("delete from Car as c where c.id >:cId",
                 Map.of("cId", 0));
         crud.run("delete from Owner as o where o.id >:oId",
@@ -73,6 +73,10 @@ class HibernateCarRepositoryTest {
         crud.run(session -> session.persist(owner2));
     }
 
+    @BeforeAll
+    public static void deleteBeforeAll() {
+        deleteEntity();
+    }
 
     @BeforeAll
     public static void initCarRepository() {

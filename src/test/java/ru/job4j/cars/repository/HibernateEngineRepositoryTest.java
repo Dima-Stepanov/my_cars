@@ -28,7 +28,7 @@ class HibernateEngineRepositoryTest {
     private static SessionFactory sf;
     private static HibernateEngineRepository engineRepository;
 
-    private void deleteEngine() {
+    private static void deleteEngine() {
         var crud = new CrudRepository(sf);
         crud.run("delete from Engine as e where e.id >:eId",
                 Map.of("eId", 0));
@@ -39,6 +39,11 @@ class HibernateEngineRepositoryTest {
         sf = HibernateConfigurationTest.getSessionFactory();
         var crud = new CrudRepository(sf);
         engineRepository = new HibernateEngineRepository(crud);
+    }
+
+    @BeforeAll
+    public static void deleteBeforeAll() {
+        deleteEngine();
     }
 
     @AfterAll
